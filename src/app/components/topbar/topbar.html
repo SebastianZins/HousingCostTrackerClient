@@ -1,0 +1,30 @@
+<p-toolbar>
+  <ng-template #start>
+    <button
+      pButton
+      iconOnly
+      [rounded]="true"
+      [text]="true"
+      size="large"
+      (click)="sideBarRef.toggleSidebar()"
+    >
+      <i class="pi pi-euro" style="font-size: 2.5rem"></i>
+    </button>
+    <div>
+      <button pButton [severity]="'primary'" (click)="sideBarRef.toggleSidebar()">
+        Schnell-Eingabe
+      </button>
+      <button pButton [severity]="'secondary'" (click)="sideBarRef.toggleSidebar()">
+        Übersicht
+      </button>
+      <button pButton [severity]="'secondary'" (click)="sideBarRef.toggleSidebar()">
+        Dashboard
+      </button>
+    </div>
+  </ng-template>
+  <ng-template #end>
+    <button pButton iconOnly [rounded]="true" [text]="true" (click)="sideBarRef.toggleSidebar()">
+      <i class="pi pi-bars" style="font-size: 2rem"></i>
+    </button>
+  </ng-template>
+</p-toolbar>

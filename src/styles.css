@@ -1,0 +1,9 @@
+@import 'primeicons/primeicons.css';
+html {
+  font-family: "Roboto", sans-serif;
+}
+
+body {
+  height: 100vh;
+  margin: 0;
+}

@@ -1,12 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { Sidebar } from './components/sidebar/sidebar';
+import { Topbar } from './components/topbar/topbar';
 import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
 
 @Component({
+  imports: [RouterOutlet, Sidebar, Topbar],
   selector: 'app-root',
-  imports: [RouterOutlet],
+  styleUrl: './app.scss',
   templateUrl: './app.html',
-  styleUrl: './app.scss'
 })
-export class App {
-  protected readonly title = signal('HousingCostTracker');
-}
+export class App {}
