@@ -1,0 +1,26 @@
+::ng-deep .p-drawer {
+  border-left: unset;
+  border-bottom: unset;
+  border-top: unset;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  padding-bottom: 0;
+  gap: 1rem;
+}
+
+.header-title {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  color: var(--p-primary-color);
+}
+
+.nav-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}

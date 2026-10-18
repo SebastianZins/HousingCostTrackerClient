@@ -156,10 +156,6 @@ form {
 }
 
 @media screen and (width <= 750px) {
-  :host {
-    padding-top: 0;
-  }
-
   .form-item-row > .form-icon {
     width: unset;
   }
