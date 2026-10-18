@@ -1,0 +1,30 @@
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+a {
+  text-decoration: none;
+}
+
+.menu-button {
+  visibility: hidden;
+}
+
+::ng-deep {
+  .p-toolbar-start,
+  .p-toolbar-center,
+  .p-toolbar-end {
+    gap: 1.5rem;
+  }
+}
+
+@media screen and (width <= 750px) {
+  .menu-button {
+    visibility: visible;
+  }
+  .button-group {
+    visibility: hidden;
+    width: 0;
+  }
+}

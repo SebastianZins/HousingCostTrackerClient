@@ -1,29 +1,38 @@
 <p-toolbar>
   <ng-template #start>
+    <a pButton iconOnly [rounded]="true" [text]="true" size="large" routerLink="/">
+      <i class="pi pi-euro" style="font-size: 2.5rem"></i>
+    </a>
+    <div class="button-group">
+      <a
+        pButton
+        [severity]="currentRoute === '/' || currentRoute === '/landing' ? 'primary' : 'secondary'"
+        routerLink="/"
+        >Schnell-Eingabe</a
+      >
+      <a
+        pButton
+        [severity]="currentRoute === '/overview' ? 'primary' : 'secondary'"
+        routerLink="/overview"
+        >Übersicht</a
+      >
+      <a
+        pButton
+        [severity]="currentRoute === '/dashboard' ? 'primary' : 'secondary'"
+        routerLink="/dashboard"
+        >Dashboard</a
+      >
+    </div>
+  </ng-template>
+  <ng-template #end>
     <button
+      class="menu-button"
       pButton
       iconOnly
       [rounded]="true"
       [text]="true"
-      size="large"
       (click)="sideBarRef.toggleSidebar()"
     >
-      <i class="pi pi-euro" style="font-size: 2.5rem"></i>
-    </button>
-    <div>
-      <button pButton [severity]="'primary'" (click)="sideBarRef.toggleSidebar()">
-        Schnell-Eingabe
-      </button>
-      <button pButton [severity]="'secondary'" (click)="sideBarRef.toggleSidebar()">
-        Übersicht
-      </button>
-      <button pButton [severity]="'secondary'" (click)="sideBarRef.toggleSidebar()">
-        Dashboard
-      </button>
-    </div>
-  </ng-template>
-  <ng-template #end>
-    <button pButton iconOnly [rounded]="true" [text]="true" (click)="sideBarRef.toggleSidebar()">
       <i class="pi pi-bars" style="font-size: 2rem"></i>
     </button>
   </ng-template>

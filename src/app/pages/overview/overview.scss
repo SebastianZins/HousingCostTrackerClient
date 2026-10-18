@@ -1,0 +1,16 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: stretch;
+}
+
+th.centered {
+  text-align: center;
+}
+
+td .centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

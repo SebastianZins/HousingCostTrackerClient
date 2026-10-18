@@ -11,3 +11,9 @@ main {
   flex-direction: column;
   padding: 1rem;
 }
+
+@media screen and (width <= 600px) {
+  main {
+    padding: 1rem 0.5rem;
+  }
+}

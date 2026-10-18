@@ -1,3 +1,4 @@
+import { ETransactionType } from '../enums/transaction-type.enum';
 import { Transaction } from '../models/transaction.model';
 import { Injectable } from '@angular/core';
 
@@ -37,5 +38,26 @@ export class TransactionService {
       return JSON.parse(transactionsJson) as Transaction[];
     }
     return [];
+  }
+
+  public getTransactionTypeName(type: ETransactionType): string {
+    switch (type) {
+      case ETransactionType.EXPENSE:
+        return 'Ausgabe';
+      case ETransactionType.INCOME:
+        return 'Einnahme';
+      case ETransactionType.TRANSFER:
+        return 'Übertrag';
+      default:
+        return '?';
+    }
+  }
+
+  public getTransactionTypeNames(): { name: string; value: ETransactionType }[] {
+    return [
+      { name: 'Ausgabe', value: ETransactionType.EXPENSE },
+      { name: 'Einnahme', value: ETransactionType.INCOME },
+      { name: 'Übertrag', value: ETransactionType.TRANSFER },
+    ];
   }
 }
