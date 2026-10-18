@@ -1,0 +1,248 @@
+<form
+  [formGroup]="inputForm"
+  [ngClass]="size ? 'size-' + size : ''"
+  (ngSubmit)="submit()"
+  (keydown.control.enter)="submit()"
+>
+  <div class="form-item-row">
+    <div class="form-icon">
+      @if (getValue('transactionType') === TRANSACTION_TYPES.INCOME) {
+        <button
+          [size]="size"
+          class="type-icon"
+          pButton
+          [rounded]="true"
+          [outlined]="true"
+          type="button"
+          (click)="onManualTypeChange(TRANSACTION_TYPES.EXPENSE)"
+        >
+          <i class="pi pi-euro first"></i>
+          <i class="pi pi-arrow-up last"></i>
+        </button>
+      } @else if (getValue('transactionType') === TRANSACTION_TYPES.EXPENSE) {
+        <button
+          [size]="size"
+          class="type-icon"
+          pButton
+          [rounded]="true"
+          [outlined]="true"
+          type="button"
+          severity="danger"
+          (click)="onManualTypeChange(TRANSACTION_TYPES.TRANSFER)"
+        >
+          <i class="pi pi-euro first"></i>
+          <i class="pi pi-arrow-down last"></i>
+        </button>
+      } @else if (getValue('transactionType') === TRANSACTION_TYPES.TRANSFER) {
+        <button
+          [size]="size"
+          class="type-icon"
+          pButton
+          type="button"
+          [rounded]="true"
+          [outlined]="true"
+          severity="info"
+          (click)="onManualTypeChange(TRANSACTION_TYPES.INCOME)"
+        >
+          <i class="pi pi-arrow-right-arrow-left"></i>
+        </button>
+      }
+    </div>
+    <div class="select-button-group">
+      @for (option of transactionTypeOptions; track $index) {
+        <button
+          [size]="size"
+          pButton
+          type="button"
+          (click)="onManualTypeChange(option.value)"
+          [severity]="option.value === getValue('transactionType') ? 'primary' : 'secondary'"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+  </div>
+  <div class="form-item-row">
+    <label for="date"> Datum: </label>
+    <div class="form-item-data">
+      <div>
+        <div class="select-button-group">
+          @for (option of datePreSelectionOptions; track $index) {
+            <button
+              pButton
+              size="small"
+              type="button"
+              (click)="setValue('date', option.value)"
+              severity="secondary"
+            >
+              {{ option.label }}
+            </button>
+          }
+        </div>
+      </div>
+      <p-datepicker [size]="size" formControlName="date" dateFormat="dd.mm.yy"> </p-datepicker>
+      @if (isInvalid('date')) {
+        <p-message [size]="size" severity="error" size="small" variant="simple">
+          Datum muss gesetzt werden
+        </p-message>
+      }
+    </div>
+  </div>
+  <div class="form-item-row">
+    <label for="amount"> Betrag: </label>
+    <div class="form-item-data">
+      <p-input-number
+        [size]="size"
+        formControlName="amount"
+        inputId="amount"
+        mode="currency"
+        [showButtons]="true"
+        [step]="10"
+        [minFractionDigits]="2"
+        [maxFractionDigits]="2"
+        [min]="0"
+        [currency]="'EUR'"
+        [prefix]="
+          getValue('transactionType') === TRANSACTION_TYPES.INCOME
+            ? '+ '
+            : getValue('transactionType') === TRANSACTION_TYPES.EXPENSE
+              ? '- '
+              : '± '
+        "
+      />
+      @if (isInvalid('amount')) {
+        <p-message [size]="size" severity="error" size="small" variant="simple">
+          Betrag muss eingegeben werden
+        </p-message>
+      }
+    </div>
+  </div>
+  @if (getValue('transactionType') !== TRANSACTION_TYPES.TRANSFER) {
+    <div class="form-item-row">
+      <label for="category"> Kategorie: </label>
+      <div class="form-item-data">
+        <p-input-group>
+          <p-inputgroup-addon>
+            <button
+              [size]="size"
+              pButton
+              type="button"
+              severity="secondary"
+              [disabled]="
+                !categoryQueryTyped || !categorySelection.value || categorySelection.value === ''
+              "
+              (click)="addCategory(categorySelection.value)"
+            >
+              <i class="pi pi-plus"></i>
+            </button>
+          </p-inputgroup-addon>
+          <p-autocomplete
+            [size]="size"
+            #categorySelection
+            [ngModelOptions]="{ standalone: true }"
+            [ngModel]="selectedCategoryName"
+            [dropdown]="true"
+            [suggestions]="categorySuggestions"
+            optionLabel="name"
+            (completeMethod)="searchCategories($event)"
+            (onSelect)="onSelectCategory($event)"
+          />
+        </p-input-group>
+        @if (isInvalid('category')) {
+          <p-message [size]="size" severity="error" size="small" variant="simple">
+            Kategorie muss ausgewählt oder hinzugefügt werden
+          </p-message>
+        }
+      </div>
+    </div>
+    <div class="form-item-row">
+      <label for="place"> Empfänger: </label>
+      <div class="form-item-data">
+        <p-input-group>
+          <p-inputgroup-addon>
+            <button
+              [size]="size"
+              type="button"
+              pButton
+              severity="secondary"
+              [disabled]="!placeQueryTyped || !placeSelection.value || placeSelection.value === ''"
+              (click)="addPlace(placeSelection.value)"
+            >
+              <i class="pi pi-plus"></i>
+            </button>
+          </p-inputgroup-addon>
+          <p-autocomplete
+            [size]="size"
+            #placeSelection
+            [ngModelOptions]="{ standalone: true }"
+            [ngModel]="selectedPlaceName"
+            [dropdown]="true"
+            [suggestions]="placesSuggestions"
+            optionLabel="name"
+            (completeMethod)="searchPlace($event)"
+            (onSelect)="onSelectPlace($event)"
+          />
+        </p-input-group>
+        @if (isInvalid('place')) {
+          <p-message [size]="size" severity="error" size="small" variant="simple">
+            Empfänger muss ausgewählt oder hinzugefügt werden
+          </p-message>
+        }
+      </div>
+    </div>
+  }
+  <div class="form-item-row">
+    <label for="payedBy"> Gezahlt von: </label>
+    <div class="form-item-data">
+      <p-select
+        [size]="size"
+        formControlName="payedBy"
+        [options]="persons"
+        optionLabel="shortName"
+        optionValue="id"
+      />
+      @if (isInvalid('payedBy')) {
+        <p-message [size]="size" severity="error" size="small" variant="simple">
+          Zahlender von muss ausgewählt werden
+        </p-message>
+      }
+    </div>
+  </div>
+  @if (getValue('transactionType') === TRANSACTION_TYPES.TRANSFER) {
+    <div class="form-item-row">
+      <label for="payedTo"> Gezahlt an: </label>
+      <div class="form-item-data">
+        <p-select
+          [size]="size"
+          [filter]="true"
+          [filterFields]="['shortName', 'firstName', 'lastName']"
+          formControlName="payedTo"
+          [options]="persons"
+          optionLabel="shortName"
+          optionValue="id"
+        />
+        @if (isInvalid('payedTo')) {
+          <p-message [size]="size" severity="error" size="small" variant="simple">
+            Gezahlt an muss ausgewählt werden
+          </p-message>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="form-item-row">
+      <label for="description"> Beschreibung: </label>
+      <div class="form-item-data">
+        <textarea [autoResize]="true" rows="1" cols="30" pTextarea formControlName="description">
+        </textarea>
+        @if (isInvalid('description')) {
+          <p-message [size]="size" severity="error" size="small" variant="simple">
+            Beschreibung muss ausgefüllt werden
+          </p-message>
+        }
+      </div>
+    </div>
+  }
+  <div class="form-item-row button-group">
+    <button pButton [size]="size" [disabled]="inputForm.invalid" type="submit">Speichern</button>
+  </div>
+</form>

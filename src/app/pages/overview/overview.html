@@ -1,298 +1,334 @@
-<p-table
-  [value]="transactions()"
-  dataKey="id"
-  [scrollable]="true"
-  scrollHeight="flex"
-  [virtualScroll]="true"
-  [(selection)]="selectedTransactions"
-  virtualScrollItemSize="46"
-  [loading]="transactionsLoading"
-  size="small"
-  sortField="date"
-  [sortOrder]="-1"
-  editMode="row"
->
-  <ng-template #header let-columns>
-    <tr>
-      <th style="width: 4rem">
-        <p-table-header-checkbox />
-      </th>
-      <th pSortableColumn="transactionType" class="centered">
-        Art
-        <p-sort-icon field="transactionType" />
-      </th>
-      <th pSortableColumn="date">
-        Datum
-        <p-sort-icon field="date" />
-      </th>
-      <th>Jahr</th>
-      <th>Monat</th>
-      <th>Tag</th>
-      <th>Wochentag</th>
-      <th pSortableColumn="amount">
-        Betrag
-        <p-sort-icon field="amount" />
-      </th>
-      <th pSortableColumn="place">
-        Empfänger
-        <p-sort-icon field="place" />
-      </th>
-      <th pSortableColumn="category">
-        Kategorie
-        <p-sort-icon field="category" />
-      </th>
-      <th>Beschreibung</th>
-      <th pSortableColumn="payedBy">
-        Gezahlt von
-        <p-sort-icon field="payedBy" />
-      </th>
-      <th pSortableColumn="payedTo">
-        Gezahlt an
-        <p-sort-icon field="payedTo" />
-      </th>
-      <th alignFrozen="right" pFrozenColumn style="width: min-content"></th>
-    </tr>
-  </ng-template>
-  <ng-template #body let-rowData let-editing="editing">
-    <tr [pEditableRow]="rowData">
-      <td>
-        <p-table-checkbox [value]="rowData" />
-      </td>
-      <td>
-        <div class="centered">
-          <p-cell-editor>
-            <ng-template #input>
-              <p-select
-                [(ngModel)]="rowData.transactionType"
-                [options]="transactionsTypeList"
-                optionLabel="name"
-                optionValue="value"
-              >
-                <ng-template #selectedItem let-selectedOption>
-                  @if (selectedOption) {
+<ng-template #topBarElements>
+  <div class="header-container">
+    @if (selectedTransactions && selectedTransactions.length > 0) {
+      <button rounded text pButton severity="danger" (click)="deleteSelected()">
+        <i class="pi pi-trash"></i>
+      </button>
+    }
+    <button rounded severity="success" text pButton (click)="transactionCreatorShown.set(true)">
+      <i class="pi pi-plus"></i>
+    </button>
+  </div>
+</ng-template>
+
+<p-card>
+  <p-table
+    #transactionTable
+    [value]="transactions()"
+    dataKey="id"
+    [scrollable]="true"
+    [(selection)]="selectedTransactions"
+    [loading]="transactionsLoading"
+    size="small"
+    sortField="date"
+    [sortOrder]="-1"
+    editMode="row"
+  >
+    <ng-template #header let-columns>
+      <tr>
+        <th style="width: 2rem">
+          <p-table-header-checkbox />
+        </th>
+        <th pSortableColumn="transactionType" class="centered">
+          Art
+          <p-sort-icon field="transactionType" />
+        </th>
+        <th pSortableColumn="date">
+          Datum
+          <p-sort-icon field="date" />
+        </th>
+        <th>Jahr</th>
+        <th>Monat</th>
+        <th>Tag</th>
+        <th>Wochentag</th>
+        <th style="min-width: 80px" pSortableColumn="amount">
+          Betrag
+          <p-sort-icon field="amount" />
+        </th>
+        <th style="min-width: 110px" pSortableColumn="place">
+          Empfänger
+          <p-sort-icon field="place" />
+        </th>
+        <th style="min-width: 110px" pSortableColumn="category">
+          Kategorie
+          <p-sort-icon field="category" />
+        </th>
+        <th style="min-width: 120px">Beschreibung</th>
+        <th style="min-width: 115px" pSortableColumn="payedBy">
+          Gezahlt von
+          <p-sort-icon field="payedBy" />
+        </th>
+        <th style="min-width: 110px" pSortableColumn="payedTo">
+          Gezahlt an
+          <p-sort-icon field="payedTo" />
+        </th>
+        <th alignFrozen="right" pFrozenColumn style="width: min-content"></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-rowData let-editing="editing">
+      <tr [pEditableRow]="rowData">
+        <td>
+          <p-table-checkbox [value]="rowData" />
+        </td>
+        <td>
+          <div class="centered">
+            <p-cell-editor>
+              <ng-template #input>
+                <p-select
+                  [(ngModel)]="rowData.transactionType"
+                  [options]="transactionsTypeList"
+                  optionLabel="name"
+                  optionValue="value"
+                >
+                  <ng-template #selectedItem let-selectedOption>
+                    @if (selectedOption) {
+                      <p-tag
+                        [severity]="
+                          selectedOption.value === TRANSACTION_TYPES.EXPENSE
+                            ? 'danger'
+                            : selectedOption.value === TRANSACTION_TYPES.INCOME
+                              ? null
+                              : 'info'
+                        "
+                      >
+                        {{ selectedOption.name }}
+                      </p-tag>
+                    }
+                  </ng-template>
+                  <ng-template let-type #item>
                     <p-tag
                       [severity]="
-                        selectedOption.value === TRANSACTION_TYPES.EXPENSE
+                        type.value === TRANSACTION_TYPES.EXPENSE
                           ? 'danger'
-                          : selectedOption.value === TRANSACTION_TYPES.INCOME
+                          : type.value === TRANSACTION_TYPES.INCOME
                             ? null
                             : 'info'
                       "
                     >
-                      {{ selectedOption.name }}
+                      {{ type.name }}
                     </p-tag>
-                  }
-                </ng-template>
-                <ng-template let-type #item>
-                  <p-tag
-                    [severity]="
-                      type.value === TRANSACTION_TYPES.EXPENSE
-                        ? 'danger'
-                        : type.value === TRANSACTION_TYPES.INCOME
-                          ? null
-                          : 'info'
-                    "
-                  >
-                    {{ type.name }}
-                  </p-tag>
-                </ng-template>
-              </p-select>
+                  </ng-template>
+                </p-select>
+              </ng-template>
+              <ng-template #output>
+                <p-tag
+                  [severity]="
+                    rowData.transactionType === TRANSACTION_TYPES.EXPENSE
+                      ? 'danger'
+                      : rowData.transactionType === TRANSACTION_TYPES.INCOME
+                        ? null
+                        : 'info'
+                  "
+                >
+                  {{ transactionService.getTransactionTypeName(rowData.transactionType) }}
+                </p-tag>
+              </ng-template>
+            </p-cell-editor>
+          </div>
+        </td>
+        <td>
+          <p-cell-editor>
+            <ng-template #input>
+              <p-datepicker style="width: 100px" [(ngModel)]="rowData.date" dateFormat="dd.mm.yy">
+              </p-datepicker>
             </ng-template>
             <ng-template #output>
-              <p-tag
-                [severity]="
-                  rowData.transactionType === TRANSACTION_TYPES.EXPENSE
-                    ? 'danger'
-                    : rowData.transactionType === TRANSACTION_TYPES.INCOME
-                      ? null
-                      : 'info'
-                "
-              >
-                {{ transactionService.getTransactionTypeName(rowData.transactionType) }}
-              </p-tag>
+              {{ rowData.date | date: 'dd.MM.yyyy' }}
             </ng-template>
           </p-cell-editor>
-        </div>
-      </td>
-      <td>
-        <p-cell-editor>
-          <ng-template #input>
-            <p-datepicker [(ngModel)]="rowData.date" dateFormat="dd.mm.yy"> </p-datepicker>
-          </ng-template>
-          <ng-template #output>
-            {{ rowData.date | date: 'dd.MM.yyyy' }}
-          </ng-template>
-        </p-cell-editor>
-      </td>
-      <td>
-        {{ rowData.date | date: 'yyyy' }}
-      </td>
-      <td>
-        {{ rowData.date | date: 'MM' }}
-      </td>
-      <td>
-        {{ rowData.date | date: 'dd' }}
-      </td>
-      <td>
-        {{ rowData.date | date: 'EEEE' }}
-      </td>
-      <td>
-        <p-cell-editor>
-          <ng-template #input>
-            <p-input-number
-              [(ngModel)]="rowData.amount"
-              mode="currency"
-              [showButtons]="true"
-              [step]="10"
-              [minFractionDigits]="2"
-              [maxFractionDigits]="2"
-              [min]="0"
-              [currency]="'EUR'"
-              [prefix]="
+        </td>
+        <td>
+          {{ rowData.date | date: 'yyyy' }}
+        </td>
+        <td>
+          {{ rowData.date | date: 'MM' }}
+        </td>
+        <td>
+          {{ rowData.date | date: 'dd' }}
+        </td>
+        <td>
+          {{ rowData.date | date: 'EEEE' }}
+        </td>
+        <td>
+          <p-cell-editor>
+            <ng-template #input>
+              <p-input-number
+                [(ngModel)]="rowData.amount"
+                mode="currency"
+                [showButtons]="true"
+                [step]="10"
+                [minFractionDigits]="2"
+                [maxFractionDigits]="2"
+                [min]="0"
+                [currency]="'EUR'"
+                [prefix]="
+                  rowData.transactionType === TRANSACTION_TYPES.INCOME
+                    ? '+ '
+                    : rowData.transactionType === TRANSACTION_TYPES.EXPENSE
+                      ? '- '
+                      : '± '
+                "
+              />
+            </ng-template>
+            <ng-template #output>
+              {{
                 rowData.transactionType === TRANSACTION_TYPES.INCOME
                   ? '+ '
                   : rowData.transactionType === TRANSACTION_TYPES.EXPENSE
                     ? '- '
                     : '± '
-              "
-            />
-          </ng-template>
-          <ng-template #output>
-            {{ rowData.amount | currency: 'EUR' }}
-          </ng-template>
-        </p-cell-editor>
-      </td>
-      <td>
-        <p-cell-editor>
-          <ng-template #input>
-            @if (rowData.transactionType === TRANSACTION_TYPES.TRANSFER) {
+              }}
+              {{ rowData.amount | currency: 'EUR' }}
+            </ng-template>
+          </p-cell-editor>
+        </td>
+        <td>
+          <p-cell-editor>
+            <ng-template #input>
+              @if (rowData.transactionType === TRANSACTION_TYPES.TRANSFER) {
+                {{ placeMap.get(rowData.place)?.name ?? '-' }}
+              } @else {
+                <p-select
+                  [options]="placeData"
+                  [(ngModel)]="rowData.place"
+                  optionLabel="name"
+                  optionValue="id"
+                />
+              }
+            </ng-template>
+            <ng-template #output>
               {{ placeMap.get(rowData.place)?.name ?? '-' }}
-            } @else {
-              <p-select
-                [options]="placeData"
-                [(ngModel)]="rowData.place"
-                optionLabel="name"
-                optionValue="id"
-              />
-            }
-          </ng-template>
-          <ng-template #output>
-            {{ placeMap.get(rowData.place)?.name ?? '-' }}
-          </ng-template>
-        </p-cell-editor>
-      </td>
-      <td>
-        <p-cell-editor>
-          <ng-template #input>
-            @if (rowData.transactionType === TRANSACTION_TYPES.TRANSFER) {
+            </ng-template>
+          </p-cell-editor>
+        </td>
+        <td>
+          <p-cell-editor>
+            <ng-template #input>
+              @if (rowData.transactionType === TRANSACTION_TYPES.TRANSFER) {
+                {{ categoryMap.get(rowData.category)?.name ?? '-' }}
+              } @else {
+                <p-select
+                  [options]="categoryData"
+                  [(ngModel)]="rowData.category"
+                  optionLabel="name"
+                  optionValue="id"
+                />
+              }
+            </ng-template>
+            <ng-template #output>
               {{ categoryMap.get(rowData.category)?.name ?? '-' }}
-            } @else {
-              <p-select
-                [options]="categoryData"
-                [(ngModel)]="rowData.category"
-                optionLabel="name"
-                optionValue="id"
-              />
-            }
-          </ng-template>
-          <ng-template #output>
-            {{ categoryMap.get(rowData.category)?.name ?? '-' }}
-          </ng-template>
-        </p-cell-editor>
-      </td>
-      <td>
-        <p-cell-editor>
-          <ng-template #input>
-            @if (rowData.transactionType === TRANSACTION_TYPES.TRANSFER) {
+            </ng-template>
+          </p-cell-editor>
+        </td>
+        <td>
+          <p-cell-editor>
+            <ng-template #input>
+              @if (rowData.transactionType === TRANSACTION_TYPES.TRANSFER) {
+                {{ rowData.description ?? '-' }}
+              } @else {
+                <input pInputText type="text" [(ngModel)]="rowData.description" />
+              }
+            </ng-template>
+            <ng-template #output>
               {{ rowData.description ?? '-' }}
-            } @else {
-              <input pInputText type="text" [(ngModel)]="rowData.description" />
-            }
-          </ng-template>
-          <ng-template #output>
-            {{ rowData.description ?? '-' }}
-          </ng-template>
-        </p-cell-editor>
-      </td>
-      <td>
-        <p-cell-editor>
-          <ng-template #input>
-            <p-select
-              [options]="personData"
-              [(ngModel)]="rowData.payedBy"
-              optionLabel="shortName"
-              optionValue="id"
-            />
-          </ng-template>
-          <ng-template #output>
-            {{ personMap.get(rowData.payedBy)?.shortName ?? '?' }}
-          </ng-template>
-        </p-cell-editor>
-      </td>
-      <td>
-        <p-cell-editor>
-          <ng-template #input>
-            @if (rowData.transactionType !== TRANSACTION_TYPES.TRANSFER) {
-              {{ rowData.payedTo ?? '-' }}
-            } @else {
+            </ng-template>
+          </p-cell-editor>
+        </td>
+        <td>
+          <p-cell-editor>
+            <ng-template #input>
               <p-select
                 [options]="personData"
                 [(ngModel)]="rowData.payedBy"
                 optionLabel="shortName"
                 optionValue="id"
               />
+            </ng-template>
+            <ng-template #output>
+              {{ personMap.get(rowData.payedBy)?.shortName ?? '?' }}
+            </ng-template>
+          </p-cell-editor>
+        </td>
+        <td>
+          <p-cell-editor>
+            <ng-template #input>
+              @if (rowData.transactionType !== TRANSACTION_TYPES.TRANSFER) {
+                {{ rowData.payedTo ?? '-' }}
+              } @else {
+                <p-select
+                  [options]="personData"
+                  [(ngModel)]="rowData.payedBy"
+                  optionLabel="shortName"
+                  optionValue="id"
+                />
+              }
+            </ng-template>
+            <ng-template #output>
+              {{
+                rowData.transactionType === TRANSACTION_TYPES.TRANSFER
+                  ? (personMap.get(rowData.payedTo)?.shortName ?? '?')
+                  : (rowData.payedTo ?? '-')
+              }}
+            </ng-template>
+          </p-cell-editor>
+        </td>
+        <td alignFrozen="right" pFrozenColumn>
+          <div class="button-cell">
+            @if (!editing) {
+              <button
+                pButton
+                type="button"
+                pInitEditableRow
+                icon="pi pi-pencil"
+                (click)="onRowEditInit(rowData)"
+                [text]="true"
+                [rounded]="true"
+                severity="secondary"
+              >
+                <i class="pi pi-pencil"></i>
+              </button>
+            } @else {
+              <button
+                pButton
+                type="button"
+                pSaveEditableRow
+                (click)="onRowEditSave(rowData)"
+                [text]="true"
+                [rounded]="true"
+                severity="secondary"
+              >
+                <i class="pi pi-check"></i>
+              </button>
+              <button
+                pButton
+                type="button"
+                pCancelEditableRow
+                (click)="onRowEditCancel(rowData)"
+                [text]="true"
+                [rounded]="true"
+                severity="secondary"
+              >
+                <i class="pi pi-times"></i>
+              </button>
             }
-          </ng-template>
-          <ng-template #output>
-            {{
-              rowData.transactionType === TRANSACTION_TYPES.TRANSFER
-                ? (personMap.get(rowData.payedTo)?.shortName ?? '?')
-                : (rowData.payedTo ?? '-')
-            }}
-          </ng-template>
-        </p-cell-editor>
-      </td>
-      <td alignFrozen="right" pFrozenColumn>
-        <div class="button-cell">
-          @if (!editing) {
-            <button
-              pButton
-              type="button"
-              pInitEditableRow
-              icon="pi pi-pencil"
-              (click)="onRowEditInit(rowData)"
-              [text]="true"
-              [rounded]="true"
-              severity="secondary"
-            >
-              <i class="pi pi-pencil"></i>
-            </button>
-          } @else {
-            <button
-              pButton
-              type="button"
-              pSaveEditableRow
-              (click)="onRowEditSave(rowData)"
-              [text]="true"
-              [rounded]="true"
-              severity="secondary"
-            >
-              <i class="pi pi-check"></i>
-            </button>
-            <button
-              pButton
-              type="button"
-              pCancelEditableRow
-              (click)="onRowEditCancel(rowData)"
-              [text]="true"
-              [rounded]="true"
-              severity="secondary"
-            >
-              <i class="pi pi-times"></i>
-            </button>
-          }
-        </div>
-      </td>
-    </tr>
-  </ng-template>
-</p-table>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<p-dialog
+  [dismissableMask]="true"
+  appendTo="body"
+  header="Neue Transaktion anlegen"
+  [modal]="true"
+  [(visible)]="transactionCreatorShown"
+>
+  <app-transaction-creator
+    [categories]="categoryData"
+    [persons]="personData"
+    [places]="placeData"
+    (updateData)="updateData($event)"
+  ></app-transaction-creator>
+</p-dialog>

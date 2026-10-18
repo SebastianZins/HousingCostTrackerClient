@@ -1,21 +1,26 @@
+import { TransactionCreator } from '../../components/transaction-creator/transaction-creator';
+import { Component, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
 import { TransactionService } from '../../common/services/transaction.service';
 import { ETransactionType } from '../../common/enums/transaction-type.enum';
 import { CategoryService } from '../../common/services/categories.service';
+import { TopbarService } from '../../components/topbar/topbar.service';
 import { PersonService } from '../../common/services/persons.service';
+import { Transaction } from '../../common/models/transaction.model';
 import { PlaceService } from '../../common/services/place.service';
 import { IPerson } from '../../common/models/person.interface';
 import { Category } from '../../common/models/category.models';
-import { Component, OnInit, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Place } from '../../common/models/place.model';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
+import { Table, TableModule } from 'primeng/table';
 import { DatePicker } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
+import { DialogModule } from 'primeng/dialog';
 import { MessageService } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
+import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 
 @Component({
@@ -30,6 +35,9 @@ import { TagModule } from 'primeng/tag';
     SelectModule,
     DatePicker,
     InputNumberModule,
+    CardModule,
+    DialogModule,
+    TransactionCreator,
   ],
   selector: 'app-overview',
   styleUrl: './overview.scss',
@@ -37,7 +45,7 @@ import { TagModule } from 'primeng/tag';
   providers: [TransactionService, PersonService, CategoryService, PlaceService],
 })
 export class OverviewPage implements OnInit {
-  public selectedTransactions?: any;
+  public selectedTransactions?: any[];
   public transactionsLoading: boolean = false;
   public transactions = signal<any[]>([]);
   private _clonedTransactions: Map<string, any> = new Map();
@@ -58,12 +66,20 @@ export class OverviewPage implements OnInit {
 
   public readonly transactionsTypeList: { name: string; value: ETransactionType }[] = [];
 
+  public transactionCreatorShown = signal<boolean>(false);
+  @ViewChild('transactionTable') public transactionTable!: Table;
+  @ViewChild('topBarElements')
+  public set topBarElements(template: TemplateRef<unknown>) {
+    this._topbarService.headerTemplate.set(template);
+  }
+
   constructor(
     public readonly transactionService: TransactionService,
     private readonly _personService: PersonService,
     private readonly _categoryService: CategoryService,
     private readonly _placeService: PlaceService,
     private readonly _messageService: MessageService,
+    private readonly _topbarService: TopbarService,
   ) {
     this.transactionsTypeList = this.transactionService.getTransactionTypeNames();
   }
@@ -95,6 +111,7 @@ export class OverviewPage implements OnInit {
     this.personDataLoading = true;
     this.personData = this._personService.getPersons();
     this.personData.forEach((p) => this.personMap.set(p.id, p));
+    this.personData.sort((c1, c2) => c1.shortName.localeCompare(c2.shortName));
     this.personDataLoading = false;
   }
 
@@ -102,6 +119,7 @@ export class OverviewPage implements OnInit {
     this.categoryDataLoading = true;
     this.categoryData = this._categoryService.getCategories();
     this.categoryData.forEach((c) => this.categoryMap.set(c.id, c));
+    this.categoryData.sort((c1, c2) => c1.name.localeCompare(c2.name));
     this.categoryDataLoading = false;
   }
 
@@ -109,6 +127,7 @@ export class OverviewPage implements OnInit {
     this.placeDataLoading = true;
     this.placeData = this._placeService.getPlaces();
     this.placeData.forEach((p) => this.placeMap.set(p.id, p));
+    this.placeData.sort((c1, c2) => c1.name.localeCompare(c2.name));
     this.placeDataLoading = false;
   }
 
@@ -158,5 +177,68 @@ export class OverviewPage implements OnInit {
     tmpTransactions[index] = this._clonedTransactions.get(transaction.id)!;
     this.transactions.set(tmpTransactions);
     this._clonedTransactions.delete(transaction.id);
+  }
+
+  public deleteSelected(): void {
+    this.transactionService.deleteTransactions(this.selectedTransactions!);
+    this.transactions.update((transactions) =>
+      transactions.filter(
+        (t) => this.selectedTransactions!.findIndex((selected) => selected === t) === -1,
+      ),
+    );
+    this.selectedTransactions = undefined;
+  }
+
+  public updateData(data: {
+    category?: Category;
+    place?: Place;
+    person?: IPerson;
+    transaction?: Transaction;
+  }): void {
+    this.transactionCreatorShown.set(false);
+    if (!!data.category) {
+      const index = this.categoryData.findIndex((c) => c.id === data.category!.id);
+      if (index >= 0) {
+        this.categoryData[index] = data.category;
+      } else {
+        this.categoryData.push(data.category);
+      }
+      this.categoryMap.set(data.category.id, data.category);
+      this.categoryData.sort((c1, c2) => c1.name.localeCompare(c2.name));
+    }
+    if (!!data.place) {
+      const index = this.placeData.findIndex((c) => c.id === data.place!.id);
+      if (index >= 0) {
+        this.placeData[index] = data.place;
+      } else {
+        this.placeData.push(data.place);
+      }
+      this.placeMap.set(data.place.id, data.place);
+      this.placeData.sort((c1, c2) => c1.name.localeCompare(c2.name));
+    }
+    if (!!data.person) {
+      const index = this.personData.findIndex((c) => c.id === data.person!.id);
+      if (index >= 0) {
+        this.personData[index] = data.person;
+      } else {
+        this.personData.push(data.person);
+      }
+      this.personMap.set(data.person.id, data.person);
+      this.personData.sort((c1, c2) => c1.shortName.localeCompare(c2.shortName));
+    }
+    if (!!data.transaction) {
+      this.transactions.update((transactions) => {
+        const index = this.transactions().findIndex((c) => c.id === data.transaction!.id);
+        const updated = [...transactions];
+        const newTransaction: any = data.transaction;
+        newTransaction.date = new Date(newTransaction.date);
+        if (index >= 0) {
+          updated[index] = data.transaction;
+        } else {
+          updated.push(data.transaction);
+        }
+        return updated;
+      });
+    }
   }
 }

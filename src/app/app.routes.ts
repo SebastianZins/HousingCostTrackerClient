@@ -1,3 +1,4 @@
+import { DashboardPage } from './pages/dashboard-page/dashboard-page';
 import { LandingPage } from './pages/landing-page/landing-page';
 import { OverviewPage } from './pages/overview/overview';
 import { Routes } from '@angular/router';
@@ -11,7 +12,7 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     pathMatch: 'full',
-    component: LandingPage,
+    component: DashboardPage,
   },
   {
     path: 'landing',
