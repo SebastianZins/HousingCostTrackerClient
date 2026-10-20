@@ -2,7 +2,7 @@ import { NavigationStart, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Component, Input } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { TopbarService } from './topbar.service';
+import { TopbarService } from '../../common/services/topbar.service';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
 import { Sidebar } from '../sidebar/sidebar';

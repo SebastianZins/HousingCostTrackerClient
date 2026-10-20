@@ -18,9 +18,9 @@ import { CategoryService } from '../../common/services/categories.service';
 import { PersonService } from '../../common/services/persons.service';
 import { Transaction } from '../../common/models/transaction.model';
 import { PlaceService } from '../../common/services/place.service';
+import { IPerson } from '../../common/interfaces/person.interface';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { Category } from '../../common/models/category.models';
-import { IPerson } from '../../common/models/person.interface';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { Place } from '../../common/models/place.model';
@@ -248,20 +248,23 @@ export class TransactionCreator extends FormsComponent implements OnInit {
     let value = this.inputForm.getRawValue() as Transaction;
     value.id = crypto.randomUUID();
     value.date = this.getValue('date').setHours(0, 0, 0, 0);
-    this._transactionService.upsertTransaction(value);
-    if (this._newCategory) {
-      this._categoryService.upsertCategory(this._newCategory);
-    }
-    if (this._newPlace) {
-      this._placeService.upsertPlace(this._newPlace);
-    }
+    this._transactionService.upsertTransaction(value).subscribe((ok) => {
+      if (ok) {
+        if (this._newCategory) {
+          this._categoryService.upsertCategory(this._newCategory);
+        }
+        if (this._newPlace) {
+          this._placeService.upsertPlace(this._newPlace);
+        }
 
-    this.updateData.emit({
-      category: this._newCategory,
-      place: this._newPlace,
-      transaction: value,
+        this.updateData.emit({
+          category: this._newCategory,
+          place: this._newPlace,
+          transaction: value,
+        });
+
+        this._resetData();
+      }
     });
-
-    this._resetData();
   }
 }

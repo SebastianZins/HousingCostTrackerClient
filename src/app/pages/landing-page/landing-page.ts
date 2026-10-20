@@ -3,7 +3,7 @@ import { CategoryService } from '../../common/services/categories.service';
 import { PersonService } from '../../common/services/persons.service';
 import { Transaction } from '../../common/models/transaction.model';
 import { PlaceService } from '../../common/services/place.service';
-import { IPerson } from '../../common/models/person.interface';
+import { IPerson } from '../../common/interfaces/person.interface';
 import { Category } from '../../common/models/category.models';
 import { Place } from '../../common/models/place.model';
 import { Component, OnInit } from '@angular/core';

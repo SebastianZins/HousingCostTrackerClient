@@ -3,11 +3,11 @@ import { Component, OnInit, signal, TemplateRef, ViewChild } from '@angular/core
 import { TransactionService } from '../../common/services/transaction.service';
 import { ETransactionType } from '../../common/enums/transaction-type.enum';
 import { CategoryService } from '../../common/services/categories.service';
-import { TopbarService } from '../../components/topbar/topbar.service';
 import { PersonService } from '../../common/services/persons.service';
+import { TopbarService } from '../../common/services/topbar.service';
 import { Transaction } from '../../common/models/transaction.model';
 import { PlaceService } from '../../common/services/place.service';
-import { IPerson } from '../../common/models/person.interface';
+import { IPerson } from '../../common/interfaces/person.interface';
 import { Category } from '../../common/models/category.models';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Place } from '../../common/models/place.model';
@@ -22,6 +22,7 @@ import { MessageService } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
+import { forkJoin } from 'rxjs';
 
 @Component({
   imports: [
@@ -91,14 +92,16 @@ export class OverviewPage implements OnInit {
 
   private _getTransactions(): void {
     this.transactionsLoading = true;
-    this.transactions.set(
-      this.transactionService.getTransactions().map((t) => {
-        const newT: any = { ...t };
-        newT.date = new Date(t.date);
-        return newT;
-      }),
-    );
-    this.transactionsLoading = false;
+    this.transactionService.getTransactions().subscribe((data) => {
+      this.transactions.set(
+        data.map((t) => {
+          const newT: any = { ...t };
+          newT.date = new Date(t.date);
+          return newT;
+        }),
+      );
+      this.transactionsLoading = false;
+    });
   }
 
   private _getAutofillData(): void {
@@ -180,13 +183,19 @@ export class OverviewPage implements OnInit {
   }
 
   public deleteSelected(): void {
-    this.transactionService.deleteTransactions(this.selectedTransactions!);
-    this.transactions.update((transactions) =>
-      transactions.filter(
-        (t) => this.selectedTransactions!.findIndex((selected) => selected === t) === -1,
-      ),
+    const obs = this.selectedTransactions!.map((transaction) =>
+      this.transactionService.deleteTransaction(transaction.id),
     );
-    this.selectedTransactions = undefined;
+    forkJoin(obs).subscribe((oks) => {
+      if (oks.every((ok) => ok)) {
+        this.transactions.update((transactions) =>
+          transactions.filter(
+            (t) => this.selectedTransactions!.findIndex((selected) => selected === t) === -1,
+          ),
+        );
+        this.selectedTransactions = undefined;
+      }
+    });
   }
 
   public updateData(data: {

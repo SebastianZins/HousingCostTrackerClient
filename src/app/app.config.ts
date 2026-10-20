@@ -1,5 +1,8 @@
 import { ApplicationConfig, LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { TopbarService } from './components/topbar/topbar.service';
+import { LocalStorageService } from './common/services/local-storage.service';
+import { TopbarService } from './common/services/topbar.service';
+import { ConfigService } from './common/services/config.service';
+import { HttpService } from './common/services/http.service';
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import { provideRouter } from '@angular/router';
@@ -36,6 +39,9 @@ export const appConfig: ApplicationConfig = {
     { provide: LOCALE_ID, useValue: 'de-DE' },
 
     // Singletons
+    HttpService,
+    ConfigService,
+    LocalStorageService,
     MessageService,
     TopbarService,
   ],

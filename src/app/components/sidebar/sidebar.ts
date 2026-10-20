@@ -1,4 +1,4 @@
-import { NavigationStart, Router, RouterLink } from '@angular/router';
+import { NavigationStart, Router} from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Component, signal } from '@angular/core';
 import { DividerModule } from 'primeng/divider';
@@ -7,7 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { filter } from 'rxjs';
 
 @Component({
-  imports: [DrawerModule, ButtonModule, DividerModule, RouterLink],
+  imports: [DrawerModule, ButtonModule, DividerModule],
   selector: 'app-sidebar',
   styleUrl: './sidebar.scss',
   templateUrl: './sidebar.html',

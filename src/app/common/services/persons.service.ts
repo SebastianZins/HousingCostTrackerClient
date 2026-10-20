@@ -1,4 +1,4 @@
-import { IPerson } from '../models/person.interface';
+import { IPerson } from '../interfaces/person.interface';
 import { Injectable } from '@angular/core';
 
 @Injectable()
