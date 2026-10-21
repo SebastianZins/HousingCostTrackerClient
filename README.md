@@ -2,7 +2,7 @@
 
 Home Cost Tracker is an Angular web application for recording and reviewing household income and expenses. It supports multiple people and three transaction types: income assigned to a person, expenses paid by a person, and transfers between people.
 
-The client is designed to work even when the API is unavailable. In that case, it can store data in the browser's Local Storage and optionally load sample data so the application can be explored without a backend.
+**API-optional by design:** The client can run without the backend. If the API is unavailable, it can switch to browser Local Storage and optionally load sample data, so the application can still be explored and used without a running server. Local data remains in the current browser and is not automatically synchronized with the API or other devices.
 
 ## Related repository
 
@@ -21,7 +21,7 @@ For API architecture, endpoint documentation, configuration, and backend setup, 
   - **Transfer:** Money moved from one person to another.
 - **Reusable categories and recipients/places:** Income and expenses are assigned a category and a recipient/place. Existing entries can be selected using autocomplete. New categories and recipients can be created directly in the transaction form and saved for future use.
 - **Transaction management:** Transactions include a date, amount, description, and the relevant people. The overview provides a table with filtering and editing functionality.
-- **API-optional operation:** If the API cannot be reached, the app can read and write data using the browser's Local Storage.
+- **API-optional operation:** The application remains usable if the backend is unavailable by using browser Local Storage instead.
 - **Sample data:** When the API is unavailable, users can choose to load sample data to explore the app with a populated set of example transactions.
 
 ## Transaction types
@@ -68,6 +68,19 @@ apiUrl: 'https://localhost:1101/api'
 ```
 
 The expected routes are defined in `src/app/app.constants.ts`. They include `/health`, `/transaction`, `/person`, `/place`, and `/category`, with `/all` endpoints for fetching collections. See the [API repository](https://github.com/SebastianZins/HousingCostTrackerAPI) for backend details.
+
+## Planned work
+
+The following improvements are planned:
+
+- **Automated tests:** Implement tests for the client and its core functionality.
+- **GitHub Actions / CI:** Add a workflow to run tests automatically on pushes and pull requests.
+- **Analytics dashboard:** Add charts and summaries for household finances, including:
+  - **Time-series line charts:** Daily, weekly, and monthly views of income, expenses, and transfers over a configurable period covering the last several months. Daily values will be aggregated by day.
+  - **Person-based pie charts:** Compare how much each person spends and receives.
+  - **Place-based pie charts:** Show where expenses occur and how spending is distributed across merchants or places.
+  - **Category-based summaries:** Compare income and expenses by category.
+  - **Filters:** Add filters for date range, person, category, and recipient/place wherever they make sense for the selected chart.
 
 ## Technology stack
 
