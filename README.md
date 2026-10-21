@@ -4,6 +4,14 @@ Home Cost Tracker is an Angular web application for recording and reviewing hous
 
 The client is designed to work even when the API is unavailable. In that case, it can store data in the browser's Local Storage and optionally load sample data so the application can be explored without a backend.
 
+## Related repository
+
+The backend REST API is maintained in a separate repository:
+
+**[HousingCostTrackerAPI](https://github.com/SebastianZins/HousingCostTrackerAPI)** — an ASP.NET Core Web API built with .NET 10 and MongoDB.
+
+For API architecture, endpoint documentation, configuration, and backend setup, see the [API README](https://github.com/SebastianZins/HousingCostTrackerAPI#readme).
+
 ## Features
 
 - **Multiple people:** Transactions are associated with people. Each person has a first name, last name, and short name.
@@ -51,7 +59,7 @@ The client is designed to use an optional API.
 
 The Local Storage keys are `TRANSACTION`, `PERSON`, `CATEGORY`, and `PLACE` (see `src/app/app.constants.ts`).
 
-**Note:** Local Storage belongs to the current browser and origin. It does not automatically synchronize data across devices or users. Clearing browser storage may remove locally saved data. The backend is a separate project and is not published as part of this repository.
+**Note:** Local Storage belongs to the current browser and origin. It does not automatically synchronize data across devices or users. Clearing browser storage may remove locally saved data.
 
 The API base URL is configured in `src/environments/environment.ts`. Its default value is:
 
@@ -59,7 +67,7 @@ The API base URL is configured in `src/environments/environment.ts`. Its default
 apiUrl: 'https://localhost:1101/api'
 ```
 
-The expected routes are defined in `src/app/app.constants.ts`. They include `/health`, `/transaction`, `/person`, `/place`, and `/category`, with `/all` endpoints for fetching collections.
+The expected routes are defined in `src/app/app.constants.ts`. They include `/health`, `/transaction`, `/person`, `/place`, and `/category`, with `/all` endpoints for fetching collections. See the [API repository](https://github.com/SebastianZins/HousingCostTrackerAPI) for backend details.
 
 ## Technology stack
 
@@ -128,4 +136,3 @@ src/
 - New categories and recipients/places can be created in the transaction form and are then stored through whichever data backend is active.
 - Amounts are entered in euros; the form requires a value greater than zero.
 - Dates are stored internally as timestamps.
-- The API is not hosted or published from this repository.
