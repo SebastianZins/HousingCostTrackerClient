@@ -20,6 +20,7 @@ import { Transaction } from '../../common/models/transaction.model';
 import { PlaceService } from '../../common/services/place.service';
 import { IPerson } from '../../common/interfaces/person.interface';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { Category } from '../../common/models/category.models';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -248,15 +249,24 @@ export class TransactionCreator extends FormsComponent implements OnInit {
     let value = this.inputForm.getRawValue() as Transaction;
     value.id = crypto.randomUUID();
     value.date = this.getValue('date').setHours(0, 0, 0, 0);
-    this._transactionService.upsertTransaction(value).subscribe((ok) => {
-      if (ok) {
-        if (this._newCategory) {
-          this._categoryService.upsertCategory(this._newCategory);
-        }
-        if (this._newPlace) {
-          this._placeService.upsertPlace(this._newPlace);
-        }
+    this._transactionService
+      .upsertTransaction(value)
+      .pipe(
+        switchMap((ok) => {
+          const obs: Observable<any>[] = [];
+          if (ok) {
+            if (this._newCategory) {
+              obs.push(this._categoryService.upsertCategory(this._newCategory));
+            }
+            if (this._newPlace) {
+              obs.push(this._placeService.upsertPlace(this._newPlace));
+            }
+          }
 
+          return obs.length > 0 ? forkJoin(obs).pipe(map(() => true)) : of(true);
+        }),
+      )
+      .subscribe(() => {
         this.updateData.emit({
           category: this._newCategory,
           place: this._newPlace,
@@ -264,7 +274,6 @@ export class TransactionCreator extends FormsComponent implements OnInit {
         });
 
         this._resetData();
-      }
-    });
+      });
   }
 }

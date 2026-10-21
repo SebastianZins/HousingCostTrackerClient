@@ -17,6 +17,13 @@ import { CardModule } from 'primeng/card';
   templateUrl: './landing-page.html',
 })
 export class LandingPage implements OnInit {
+  public get dataLoading(): boolean {
+    return this._categoriesLoading || this._placesLoading || this._personsLoading;
+  }
+  private _categoriesLoading: boolean = false;
+  private _placesLoading: boolean = false;
+  private _personsLoading: boolean = false;
+
   public categories: Category[] = [];
   public places: Place[] = [];
   public persons: IPerson[] = [];
@@ -34,18 +41,30 @@ export class LandingPage implements OnInit {
   }
 
   private _getCategories(): void {
-    this.categories = this._categoryService.getCategories();
-    this.categories.sort((c1, c2) => c1.name.localeCompare(c2.name));
+    this._categoriesLoading = true;
+    this._categoryService.getCategories().subscribe((data) => {
+      this.categories = data;
+      this.categories.sort((c1, c2) => c1.name.localeCompare(c2.name));
+      this._categoriesLoading = false;
+    });
   }
 
   private _getPersons(): void {
-    this.persons = this._personService.getPersons();
-    this.persons.sort((c1, c2) => c1.shortName.localeCompare(c2.shortName));
+    this._personsLoading = true;
+    this._personService.getPersons().subscribe((data) => {
+      this.persons = data;
+      this.persons.sort((c1, c2) => c1.shortName.localeCompare(c2.shortName));
+      this._personsLoading = false;
+    });
   }
 
   private _getPlaces(): void {
-    this.places = this._placeService.getPlaces();
-    this.places.sort((c1, c2) => c1.name.localeCompare(c2.name));
+    this._placesLoading = true;
+    this._placeService.getPlaces().subscribe((data) => {
+      this.places = data;
+      this.places.sort((c1, c2) => c1.name.localeCompare(c2.name));
+      this._placesLoading = false;
+    });
   }
 
   public updateData(data: {

@@ -111,4 +111,12 @@ export const transactions: Transaction[] = [
     place: '1fd45cfd-1ad4-436f-9ac7-50d4240435f6',
     id: '9a39aa99-f74a-48e9-a941-588b322756d7',
   },
+  {
+    date: 1791928800000,
+    amount: 50,
+    payedBy: '0ceb12c0-f611-49aa-ae36-4162e842ec95',
+    transactionType: 2,
+    payedTo: 'e526015c-d3a1-4820-8b4e-97c55118a5d6',
+    id: '94e67dae-e9d5-408d-9c21-121dff68d57f',
+  },
 ];

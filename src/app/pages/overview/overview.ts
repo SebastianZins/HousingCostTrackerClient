@@ -47,21 +47,30 @@ import { forkJoin } from 'rxjs';
 })
 export class OverviewPage implements OnInit {
   public selectedTransactions?: any[];
-  public transactionsLoading: boolean = false;
+  private _transactionsLoading: boolean = false;
   public transactions = signal<any[]>([]);
   private _clonedTransactions: Map<string, any> = new Map();
 
   public personMap: Map<string, IPerson> = new Map();
   public personData: IPerson[] = [];
-  public personDataLoading: boolean = false;
+  private _personDataLoading: boolean = false;
 
   public categoryMap: Map<string, Category> = new Map();
   public categoryData: Category[] = [];
-  public categoryDataLoading: boolean = false;
+  private _categoryDataLoading: boolean = false;
 
   public placeMap: Map<string, Place> = new Map();
   public placeData: Place[] = [];
-  public placeDataLoading: boolean = false;
+  private _placeDataLoading: boolean = false;
+
+  public get dataLoading(): boolean {
+    return (
+      this._transactionsLoading ||
+      this._personDataLoading ||
+      this._categoryDataLoading ||
+      this._placeDataLoading
+    );
+  }
 
   public readonly TRANSACTION_TYPES = ETransactionType;
 
@@ -91,7 +100,7 @@ export class OverviewPage implements OnInit {
   }
 
   private _getTransactions(): void {
-    this.transactionsLoading = true;
+    this._transactionsLoading = true;
     this.transactionService.getTransactions().subscribe((data) => {
       this.transactions.set(
         data.map((t) => {
@@ -100,7 +109,7 @@ export class OverviewPage implements OnInit {
           return newT;
         }),
       );
-      this.transactionsLoading = false;
+      this._transactionsLoading = false;
     });
   }
 
@@ -111,27 +120,39 @@ export class OverviewPage implements OnInit {
   }
 
   private _getPersons(): void {
-    this.personDataLoading = true;
-    this.personData = this._personService.getPersons();
-    this.personData.forEach((p) => this.personMap.set(p.id, p));
-    this.personData.sort((c1, c2) => c1.shortName.localeCompare(c2.shortName));
-    this.personDataLoading = false;
+    this._personDataLoading = true;
+    this._personService.getPersons().subscribe((data) => {
+      this.personData = data;
+      this.personData.sort((c1, c2) => c1.shortName.localeCompare(c2.shortName));
+      data.forEach((d) => {
+        this.personMap.set(d.id, d);
+      });
+      this._personDataLoading = false;
+    });
   }
 
   private _getCategories(): void {
-    this.categoryDataLoading = true;
-    this.categoryData = this._categoryService.getCategories();
-    this.categoryData.forEach((c) => this.categoryMap.set(c.id, c));
-    this.categoryData.sort((c1, c2) => c1.name.localeCompare(c2.name));
-    this.categoryDataLoading = false;
+    this._categoryDataLoading = true;
+    this._categoryService.getCategories().subscribe((data) => {
+      this.categoryData = data;
+      this.categoryData.sort((c1, c2) => c1.name.localeCompare(c2.name));
+      data.forEach((d) => {
+        this.categoryMap.set(d.id, d);
+      });
+      this._categoryDataLoading = false;
+    });
   }
 
   private _getPlaces(): void {
-    this.placeDataLoading = true;
-    this.placeData = this._placeService.getPlaces();
-    this.placeData.forEach((p) => this.placeMap.set(p.id, p));
-    this.placeData.sort((c1, c2) => c1.name.localeCompare(c2.name));
-    this.placeDataLoading = false;
+    this._placeDataLoading = true;
+    this._placeService.getPlaces().subscribe((data) => {
+      this.placeData = data;
+      this.placeData.sort((c1, c2) => c1.name.localeCompare(c2.name));
+      data.forEach((d) => {
+        this.placeMap.set(d.id, d);
+      });
+      this._placeDataLoading = false;
+    });
   }
 
   public onRowEditInit(transaction: any) {
