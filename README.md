@@ -1,84 +1,84 @@
 # Home Cost Tracker
 
-Eine Angular-Webanwendung, um Einnahmen und Ausgaben eines Haushalts zu erfassen und zu überblicken. Mehrere Personen können gemeinsam abgebildet werden. Die Anwendung unterstützt Einnahmen, Ausgaben und Geldtransfers zwischen Personen.
+Home Cost Tracker is an Angular web application for recording and reviewing household income and expenses. It supports multiple people and three transaction types: income assigned to a person, expenses paid by a person, and transfers between people.
 
-Die Client-Anwendung ist so aufgebaut, dass sie auch ohne erreichbare API genutzt werden kann: In diesem Fall kann sie Daten im Browser-Local-Storage speichern und auf Wunsch mit Beispieldaten gestartet werden.
+The client is designed to work even when the API is unavailable. In that case, it can store data in the browser's Local Storage and optionally load sample data so the application can be explored without a backend.
 
-## Funktionen
+## Features
 
-- **Mehrere Personen:** Transaktionen werden einer Person zugeordnet. Personen besitzen Vorname, Nachname und Kurznamen.
-- **Drei Transaktionstypen:**
-  - **Einnahme:** Ein Betrag wird einer Person gutgeschrieben.
-  - **Ausgabe:** Eine Person bezahlt einen Betrag, zum Beispiel für Lebensmittel oder Miete.
-  - **Übertrag:** Geld wird von einer Person an eine andere übertragen.
-- **Kategorien und Empfänger wiederverwenden:** Einnahmen und Ausgaben erhalten eine Kategorie und einen Empfänger/Ort. Vorhandene Einträge können über die Autovervollständigung ausgewählt werden. Neue Kategorien und Empfänger lassen sich direkt beim Erfassen anlegen und werden gespeichert.
-- **Transaktionen verwalten:** Datum, Betrag, Beschreibung und beteiligte Personen werden erfasst. Die Übersicht bietet eine tabellarische Darstellung und Filter-/Bearbeitungsfunktionen.
-- **Lokaler Betrieb ohne API:** Ist die API nicht erreichbar, kann die App ihre Daten aus dem Browser-Local-Storage beziehen und Änderungen dort speichern.
-- **Beispieldaten:** Beim Start ohne API kann das Laden von Testdaten ausgewählt werden, damit sich die Anwendung mit realistisch aufgebauten Beispielen ausprobieren lässt.
+- **Multiple people:** Transactions are associated with people. Each person has a first name, last name, and short name.
+- **Three transaction types:**
+  - **Income:** Money received by a person.
+  - **Expense:** Money paid by a person, for example for groceries or rent.
+  - **Transfer:** Money moved from one person to another.
+- **Reusable categories and recipients/places:** Income and expenses are assigned a category and a recipient/place. Existing entries can be selected using autocomplete. New categories and recipients can be created directly in the transaction form and saved for future use.
+- **Transaction management:** Transactions include a date, amount, description, and the relevant people. The overview provides a table with filtering and editing functionality.
+- **API-optional operation:** If the API cannot be reached, the app can read and write data using the browser's Local Storage.
+- **Sample data:** When the API is unavailable, users can choose to load sample data to explore the app with a populated set of example transactions.
 
-## Transaktionsarten
+## Transaction types
 
-Die Anwendung verwendet `ETransactionType` aus `src/app/common/enums/transaction-type.enum.ts`:
+The application defines `ETransactionType` in `src/app/common/enums/transaction-type.enum.ts`:
 
-| Typ | Bedeutung | Angaben |
+| Type | Meaning | Data recorded |
 | --- | --- | --- |
-| `INCOME` | Einnahme | Betrag, Datum, empfangende Person, Beschreibung, Kategorie und Empfänger/Ort |
-| `EXPENSE` | Ausgabe | Betrag, Datum, zahlende Person, Beschreibung, Kategorie und Empfänger/Ort |
-| `TRANSFER` | Übertrag zwischen Personen | Betrag, Datum, abgebende Person und empfangende Person |
+| `INCOME` | Income | Amount, date, person receiving the income, description, category, and recipient/place |
+| `EXPENSE` | Expense | Amount, date, person paying, description, category, and recipient/place |
+| `TRANSFER` | Transfer between people | Amount, date, sending person, and receiving person |
 
-Im Datenmodell (`src/app/common/models/transaction.model.ts`) stehen unter anderem die Felder `amount`, `date`, `transactionType`, `payedBy`, `payedTo`, `description`, `category` und `place`. Personen, Kategorien und Empfänger werden über ihre IDs referenziert.
+The transaction model (`src/app/common/models/transaction.model.ts`) includes fields such as `amount`, `date`, `transactionType`, `payedBy`, `payedTo`, `description`, `category`, and `place`. People, categories, and recipients/places are referenced by their IDs.
 
-### Beispiele aus den enthaltenen Testdaten
+### Examples from the sample data
 
-Die Beispieldaten in `src/app/testData/` zeigen die vorgesehenen Verwendungsfälle:
+The sample data in `src/app/testData/` demonstrates the relationships between transactions and the related records:
 
-- **Ausgabe:** Max Maier bezahlt 20 € für Lebensmittel bei Rewe.
-- **Ausgabe:** Max Maier bezahlt 30 € für Miete bei Kaufland.
-- **Einnahme:** Hannah Maier erhält 20 € mit der Kategorie „Strom“ und dem Empfänger/Ort „Kaufland“.
-- **Übertrag:** Hannah Maier überträgt 50 € an Max Maier. Bei einem Übertrag werden keine Kategorie und kein Empfänger benötigt.
+- **Expense:** Hannah Maier spends €20 on groceries at Rewe.
+- **Expense:** Hannah Maier spends €30 on rent, with `Miete` as the category and `Kaufland` as the stored recipient/place in the sample dataset.
+- **Income:** Hannah Maier receives €20 with the category `Strom` and the recipient/place `Kaufland`.
+- **Transfer:** Max Maier transfers €50 to Hannah Maier. Transfers do not require a category or recipient/place.
 
-Die Beispiele illustrieren die Verknüpfung von Transaktionen mit Personen, Kategorien und Empfängern über IDs; die Bezeichnungen werden in der Oberfläche aus den zugehörigen Datensätzen aufgelöst.
+These examples illustrate how transactions refer to people, categories, and recipients/places by ID. The UI resolves the corresponding names from those records.
 
-## Datenhaltung und API-Fallback
+## Data storage and API fallback
 
-Die Client-Anwendung ist auf eine optionale API ausgelegt.
+The client is designed to use an optional API.
 
-1. Beim Start prüft `ConfigService` über den Health-Endpunkt, ob die API erreichbar ist.
-2. Ist die API erreichbar, verwenden die Datenservices die HTTP-Endpunkte.
-3. Ist die API nicht erreichbar, wartet die App auf die Auswahl, ob Beispieldaten geladen werden sollen.
-4. Werden Testdaten ausgewählt, schreibt die App die Beispieldatensätze für Transaktionen, Personen, Kategorien und Empfänger in den Local-Storage.
-5. Im lokalen Modus lesen und schreiben die Services ihre Daten im Local-Storage des Browsers.
+1. On startup, `ConfigService` checks whether the API is reachable by requesting the health endpoint.
+2. If the API is reachable, the data services use the HTTP endpoints.
+3. If the API is unavailable, the app asks whether sample data should be loaded.
+4. If sample data is selected, the app writes the sample transactions, people, categories, and recipients/places to Local Storage.
+5. In local mode, the services read and write data in the browser's Local Storage.
 
-Die Local-Storage-Schlüssel lauten `TRANSACTION`, `PERSON`, `CATEGORY` und `PLACE` (siehe `src/app/app.constants.ts`).
+The Local Storage keys are `TRANSACTION`, `PERSON`, `CATEGORY`, and `PLACE` (see `src/app/app.constants.ts`).
 
-**Wichtig:** Local-Storage-Daten sind an den Browser und dessen Speicherbereich gebunden. Sie werden nicht automatisch mit anderen Geräten oder Personen synchronisiert. Browserdaten zu löschen kann die lokal gespeicherten Daten entfernen. Das Backend ist ein separates Projekt und wird nicht über dieses Repository veröffentlicht.
+**Note:** Local Storage belongs to the current browser and origin. It does not automatically synchronize data across devices or users. Clearing browser storage may remove locally saved data. The backend is a separate project and is not published as part of this repository.
 
-Die API-Basis-URL ist derzeit in `src/environments/environment.ts` konfiguriert und lautet standardmäßig:
+The API base URL is configured in `src/environments/environment.ts`. Its default value is:
 
 ```ts
 apiUrl: 'https://localhost:1101/api'
 ```
 
-Die erwarteten Routen sind in `src/app/app.constants.ts` definiert. Dazu gehören `/health`, `/transaction`, `/person`, `/place` und `/category`, jeweils mit `/all`-Routen für das Laden von Sammlungen.
+The expected routes are defined in `src/app/app.constants.ts`. They include `/health`, `/transaction`, `/person`, `/place`, and `/category`, with `/all` endpoints for fetching collections.
 
-## Technologie-Stack
+## Technology stack
 
-- [Angular](https://angular.dev/) mit TypeScript
-- [PrimeNG](https://primeng.org/) und [PrimeIcons](https://primeng.org/icons) für UI-Komponenten und Icons
-- [RxJS](https://rxjs.dev/) für asynchrone Datenflüsse
-- Browser-Local-Storage als Offline-/Fallback-Datenspeicher
-- Angular Router für die Navigation
+- [Angular](https://angular.dev/) and TypeScript
+- [PrimeNG](https://primeng.org/) and [PrimeIcons](https://primeng.org/icons) for UI components and icons
+- [RxJS](https://rxjs.dev/) for asynchronous data flows
+- Browser Local Storage as the offline/fallback data store
+- Angular Router for navigation
 
-Die installierten Abhängigkeiten und verfügbaren npm-Skripte stehen in `package.json`.
+Installed dependencies and available npm scripts are listed in `package.json`.
 
-## Voraussetzungen
+## Prerequisites
 
-- Node.js und npm in einer Version, die mit der installierten Angular-Toolchain kompatibel ist
-- Eine aktuelle npm-Installation
+- Node.js and npm versions compatible with the installed Angular toolchain
+- A current npm installation
 
-## Lokal starten
+## Run locally
 
-Repository klonen und in den Projektordner wechseln:
+Clone the repository and install its dependencies:
 
 ```bash
 git clone https://github.com/SebastianZins/HousingCostTrackerClient.git
@@ -87,45 +87,45 @@ npm install
 npm start
 ```
 
-Danach die Anwendung im Browser unter [http://localhost:4200](http://localhost:4200) öffnen.
+Open [http://localhost:4200](http://localhost:4200) in your browser.
 
-`npm start` startet den Angular-Entwicklungsserver. Für den lokalen Betrieb ohne Backend ist keine veröffentlichte API erforderlich. Wenn die konfigurierte API nicht erreichbar ist, kann der Local-Storage-Modus mit oder ohne Beispieldaten verwendet werden.
+`npm start` launches the Angular development server. No published API is required to run the client locally. If the configured API is unreachable, the app can use Local Storage with or without sample data.
 
-## Weitere Befehle
+## Available commands
 
-| Befehl | Zweck |
+| Command | Purpose |
 | --- | --- |
-| `npm start` | Entwicklungsserver starten |
-| `npm run build` | Anwendung bauen |
-| `npm run watch` | Build während der Entwicklung laufend aktualisieren |
-| `npm test` | Tests starten |
+| `npm start` | Start the development server |
+| `npm run build` | Build the application |
+| `npm run watch` | Rebuild continuously during development |
+| `npm test` | Run tests |
 
-## Projektstruktur
+## Project structure
 
-Die wichtigsten Verzeichnisse und Dateien:
+The main directories and files are organized as follows:
 
 ```text
 src/
 ├── app/
 │   ├── common/
-│   │   ├── enums/          # Transaktionstypen
-│   │   ├── interfaces/     # z. B. Personeninterface
-│   │   ├── models/         # Transaktion, Kategorie, Empfänger/Ort
-│   │   └── services/       # API-Konfiguration, HTTP, Local-Storage und Datenservices
+│   │   ├── enums/          # Transaction types
+│   │   ├── interfaces/     # For example, the person interface
+│   │   ├── models/         # Transaction, category, and recipient/place models
+│   │   └── services/       # API configuration, HTTP, Local Storage, and data services
 │   ├── components/
-│   │   └── transaction-creator/  # Formular zum Erfassen von Transaktionen
+│   │   └── transaction-creator/  # Transaction entry form
 │   ├── pages/
-│   │   ├── landing-page/   # Schnelleingabe
-│   │   ├── overview/      # Transaktionsübersicht
-│   │   └── dashboard-page/ # Dashboard-Seite
-│   └── testData/           # Beispieldaten für Personen, Kategorien, Orte und Transaktionen
+│   │   ├── landing-page/   # Quick entry
+│   │   ├── overview/       # Transaction overview
+│   │   └── dashboard-page/ # Dashboard page
+│   └── testData/           # Sample people, categories, places, and transactions
 └── environments/
-    └── environment.ts      # API-Basis-URL
+    └── environment.ts      # API base URL
 ```
 
-## Hinweise
+## Additional notes
 
-- Neue Kategorien und Empfänger werden über das Transaktionsformular erstellt und anschließend über den jeweils aktiven Speicherweg abgelegt.
-- Beträge werden in Euro eingegeben; das Formular verlangt einen Betrag größer als null.
-- Datumswerte werden intern als Zeitstempel gespeichert.
-- Die API wird nicht in diesem Repository bereitgestellt oder veröffentlicht.
+- New categories and recipients/places can be created in the transaction form and are then stored through whichever data backend is active.
+- Amounts are entered in euros; the form requires a value greater than zero.
+- Dates are stored internally as timestamps.
+- The API is not hosted or published from this repository.
